@@ -1,11 +1,13 @@
 """Search Algos: MiniMax, AlphaBeta
 """
-#TODO: you can import more modules, if needed
-#TODO: update ALPHA_VALUE_INIT, BETA_VALUE_INIT in utils
+# TODO: you can import more modules, if needed
+# DONE TODO: update ALPHA_VALUE_INIT, BETA_VALUE_INIT in utils
 import time
 import numpy as np
+
 ALPHA_VALUE_INIT = -np.inf
-BETA_VALUE_INIT = np.inf # !!!!!
+BETA_VALUE_INIT = np.inf  # !!!!!
+
 
 class SearchAlgos:
     def __init__(self, utility, succ, perform_move=None, goal=None):
@@ -35,10 +37,29 @@ class MiniMax(SearchAlgos):
         :param maximizing_player: Whether this is a max node (True) or a min node (False).
         :return: A tuple: (The min max algorithm value, The direction in case of max node or None in min mode)
         """
-        #TODO: erase the following line and implement this function.
-        raise NotImplementedError
-
-
+        # TODO: erase the following line and implement this function.
+        # TODO: check if depth starts with a large value which needs to be reduced until 0
+        if self.goal(state) or depth == 0:
+            return self.utility(state)
+        children = self.succ(state)
+        if maximizing_player:
+            # This is a MAX node
+            curr_max = -np.inf
+            curr_dir = None
+            for c in children:
+                v, dir = self.search(c, depth - 1, False)
+                if v > curr_max:
+                    curr_max = v
+                    curr_dir = dir
+            return curr_max, curr_dir
+        else:
+            # This is a MIN node
+            curr_min = np.inf
+            for c in children:
+                v, dir = self.search(c, depth - 1, True)
+                if v < curr_min:
+                    curr_min = v
+            return curr_min, None
 
 
 class AlphaBeta(SearchAlgos):
@@ -52,5 +73,5 @@ class AlphaBeta(SearchAlgos):
         :param: beta: beta value
         :return: A tuple: (The min max algorithm value, The direction in case of max node or None in min mode)
         """
-        #TODO: erase the following line and implement this function.
+        # TODO: erase the following line and implement this function.
         raise NotImplementedError
