@@ -4,13 +4,16 @@ MiniMax Player
 import numpy as np
 
 from players.AbstractPlayer import AbstractPlayer
-#TODO: you can import more modules, if needed
+# TODO: you can import more modules, if needed
+from SearchAlgos import MiniMax
+from utils import GameUtils
+
 
 class Player(AbstractPlayer):
     def __init__(self, game_time):
-        AbstractPlayer.__init__(self, game_time) # keep the inheritance of the parent's (AbstractPlayer) __init__()
-        #TODO: initialize more fields, if needed, and the AlphaBeta algorithm from SearchAlgos.py
-
+        AbstractPlayer.__init__(self, game_time)  # keep the inheritance of the parent's (AbstractPlayer) __init__()
+        # TODO: initialize more fields, if needed, and the AlphaBeta algorithm from SearchAlgos.py
+        self.utils = GameUtils
 
     def set_game_params(self, board):
         """Set the game parameters needed for this player.
@@ -33,7 +36,8 @@ class Player(AbstractPlayer):
         output:
             - direction: tuple, specifing the Player's movement
         """
-        #TODO: erase the following line and implement this function.
+        # TODO: erase the following line and implement this function.
+        minimax_algo = MiniMax(self.utils.utility_method, self.utils.successor_func, None, self.utils.check_goal)
         if self.turn < 18:
             move = self._stage_1_move()
             self.turn += 1
@@ -75,7 +79,7 @@ class Player(AbstractPlayer):
             self.my_pos[dead_soldier] = -2
         self.turn += 1
 
-    def _stage_1_move(self)->tuple:
+    def _stage_1_move(self) -> tuple:
         # cell = int(np.where(self.board == 0)[0][0])
         # soldier_that_moved = int(np.where(self.my_pos == -1)[0][0])
         cell, soldier_that_moved = self._stage_1_choose_cell_and_soldier_to_move()
@@ -91,7 +95,7 @@ class Player(AbstractPlayer):
         soldier_that_moved = int(np.where(self.my_pos == -1)[0][0])
         return cell, soldier_that_moved
 
-    def _stage_2_move(self)->tuple:
+    def _stage_2_move(self) -> tuple:
         cell, soldier_that_moved = -1, -1
         soldiers_on_board = np.where(self.board == 1)[0]
         for soldier_cell in soldiers_on_board:
@@ -106,12 +110,8 @@ class Player(AbstractPlayer):
                     return cell, soldier_that_moved, rival_cell
         assert cell == -1, 'No moves'
 
-
-
     ########## helper functions in class ##########
     # TODO: add here helper functions in class, if needed
-
-
 
     ########## helper functions for AlphaBeta algorithm ##########
     # TODO: add here the utility, succ, an
