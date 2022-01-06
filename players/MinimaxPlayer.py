@@ -63,13 +63,12 @@ class Player(AbstractPlayer):
 
         move = best_move[1]
         self.prev_board = deepcopy(self.board)
-        new_state = utils.GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn, time.time() + time_limit)
+        new_state = utils.GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn,
+                                    time.time() + time_limit)
 
         GameUtils.perform_move(new_state, move, 1)
         self.turn += 1
         return move
-
-        # Need to return a tuple of (pos, soldier, dead_opponent_pos)
 
     def set_rival_move(self, move):
         """Update your info, given the new position of the rival.

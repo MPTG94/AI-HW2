@@ -91,4 +91,45 @@ class AlphaBeta(SearchAlgos):
         :return: A tuple: (The min max algorithm value, The direction in case of max node or None in min mode)
         """
         # TODO: erase the following line and implement this function.
-        raise NotImplementedError
+        if self.goal(state) or depth <= 0:
+            # print('goal' ,self.goal(state))
+            # print('depth', depth)
+            return self.utility(state, True), None
+        # print('PASSED goal check')
+        # print(f'searching for depth {depth}')
+        # print(state.max_time)
+        i = 1 if maximizing_player else 2
+        successor_moves = self.succ(state, i)
+        if maximizing_player:
+            # This is a MAX node
+            curr_max = -np.inf
+            curr_move = None
+            for move in successor_moves:
+                state_copy = deepcopy(state)
+                GameUtils.perform_move(state_copy, move, i)
+                search_algo = AlphaBeta(self.utility, self.succ, None, self.goal)
+                step_value, step_move = search_algo.search(state_copy, depth - 1, False, alpha, beta)
+                if step_value is not None and step_value > curr_max:
+                    curr_max = step_value
+                    curr_move = move
+                alpha = max(alpha, curr_max)
+                if beta <= alpha:
+                    # Early stopping
+                    return None, None
+            return curr_max, curr_move
+        else:
+            # This is a MIN node
+            curr_min = np.inf
+            curr_move = None
+            for move in successor_moves:
+                state_copy = deepcopy(state)
+                GameUtils.perform_move(state_copy, move, i)
+                search_algo = AlphaBeta(self.utility, self.succ, None, self.goal)
+                step_value, step_move = search_algo.search(state_copy, depth - 1, True, alpha, beta)
+                if step_value is not None and step_value < curr_min:
+                    curr_min = step_value
+                    curr_move = move
+                beta = min(beta, curr_min)
+                if beta <= alpha:
+                    return None, None
+        return curr_min, curr_move
