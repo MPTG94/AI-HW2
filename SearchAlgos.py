@@ -4,6 +4,8 @@
 # DONE TODO: update ALPHA_VALUE_INIT, BETA_VALUE_INIT in utils
 import time
 import numpy as np
+from utils import GameUtils
+from copy import deepcopy
 
 ALPHA_VALUE_INIT = -np.inf
 BETA_VALUE_INIT = np.inf  # !!!!!
@@ -39,27 +41,42 @@ class MiniMax(SearchAlgos):
         """
         # TODO: erase the following line and implement this function.
         # TODO: check if depth starts with a large value which needs to be reduced until 0
-        if self.goal(state) or depth == 0:
-            return self.utility(state)
-        children = self.succ(state)
+        # print('STARTING goal check')
+        if self.goal(state) or depth <= 0:
+            # print('goal' ,self.goal(state))
+            # print('depth', depth)
+            return self.utility(state, True), None
+        # print('PASSED goal check')
+        # print(f'searching for depth {depth}')
+        # print(state.max_time)
+        i = 1 if maximizing_player else 2
+        successor_moves = self.succ(state, i)
         if maximizing_player:
             # This is a MAX node
             curr_max = -np.inf
-            curr_dir = None
-            for c in children:
-                v, dir = self.search(c, depth - 1, False)
-                if v > curr_max:
-                    curr_max = v
-                    curr_dir = dir
-            return curr_max, curr_dir
+            curr_move = None
+            for move in successor_moves:
+                state_copy = deepcopy(state)
+                GameUtils.perform_move(state_copy, move, i)
+                search_algo = MiniMax(self.utility, self.succ, None, self.goal)
+                step_value, step_move = search_algo.search(state_copy, depth - 1, False)
+                if step_value > curr_max:
+                    curr_max = step_value
+                    curr_move = move
+            return curr_max, curr_move
         else:
             # This is a MIN node
             curr_min = np.inf
-            for c in children:
-                v, dir = self.search(c, depth - 1, True)
-                if v < curr_min:
-                    curr_min = v
-            return curr_min, None
+            curr_move = None
+            for move in successor_moves:
+                state_copy = deepcopy(state)
+                GameUtils.perform_move(state_copy, move, i)
+                search_algo = MiniMax(self.utility, self.succ, None, self.goal)
+                step_value, step_move = search_algo.search(state_copy, depth - 1, True)
+                if step_value < curr_min:
+                    curr_min = step_value
+                    curr_move = move
+        return curr_min, curr_move
 
 
 class AlphaBeta(SearchAlgos):
