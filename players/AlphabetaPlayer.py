@@ -1,14 +1,17 @@
 """
 MiniMax Player with AlphaBeta pruning
 """
+import statistics
 import time
+from collections import defaultdict
+from typing import DefaultDict
+
 import numpy as np
 from copy import deepcopy
 
-from SearchAlgos import AlphaBeta
+from SearchAlgos import AlphaBeta, GameUtils
 from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
-from utils import GameUtils
 import utils
 
 
@@ -33,6 +36,9 @@ class Player(AbstractPlayer):
         self.rival_pos = np.full(9, -1)
         self.turn = 0
 
+        self.search_time_list = {}
+        self.search_time_dict = {}
+
     def make_move(self, time_limit):
         """Make move with this Player.
         input:
@@ -50,12 +56,21 @@ class Player(AbstractPlayer):
 
         while True:
             try:
+                print(f'trying depth {depth}')
+                start_time = time.time()
                 temp_move = search_algo.search(state, depth, True)
+                end_time = time.time()
+                print(f'Depth: {depth}, Time: {end_time - start_time}')
+                try:
+                    self.search_time_dict[self.turn].append(f'{depth}:{end_time - start_time}')
+                    self.search_time_list[self.turn].append(end_time - start_time)
+                except KeyError:
+                    self.search_time_dict[self.turn] = [f'{depth}:{end_time - start_time}']
+                    self.search_time_list[self.turn] = [end_time - start_time]
                 if temp_move[1] is not None:
                     best_move = temp_move
                 else:
                     print(f'GOT NONE!')
-                print(f'trying depth {depth}')
             except TimeoutError:
                 break
             depth += 1
@@ -67,6 +82,7 @@ class Player(AbstractPlayer):
 
         GameUtils.perform_move(new_state, move, 1)
         self.turn += 1
+
         return move
 
     def set_rival_move(self, move):
@@ -102,6 +118,14 @@ class Player(AbstractPlayer):
 
     ########## helper functions in class ##########
     # TODO: add here helper functions in class, if needed
+
+    def print_game_stats(self):
+        res = []
+        for val in self.search_time_list.values():
+            res.extend(val)
+        print(
+            f'Avg search time: {statistics.mean(res)}, number of moves performed: {len(self.search_time_list)}')
+        print(f'{self.search_time_list}')
 
     ########## helper functions for AlphaBeta algorithm ##########
     # TODO: add here the utility, succ, and perform_move functions used in AlphaBeta algorithm

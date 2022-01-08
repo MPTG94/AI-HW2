@@ -45,6 +45,8 @@ class GameWrapper:
           """
         if self.game.player_cant_move(player_index):
             messages = [f'    Player {player_index} Won!']
+            # TODO: remove this
+            self.players[0].print_game_stats()
             self.pretty_print_end_game(messages)
         else:
             return False
@@ -67,6 +69,8 @@ class GameWrapper:
             player_index_time_up = player_index + 1
             messages = [f'Time Up For Player {player_index_time_up}',
                         f'    Player {3 - player_index_time_up} Won!']
+            # TODO: remove this
+            self.players[0].print_game_stats()
             self.pretty_print_end_game(messages)
 
         assert self.game.check_move(move), 'illegal move'
@@ -111,6 +115,8 @@ class GameWrapper:
                 # If rival has 3 players or less -> End Game!
                 print("End game")
                 messages = [f'    Player {player_index + 1} Won!']
+                # TODO: remove this
+                self.players[0].print_game_stats()
                 self.pretty_print_end_game(messages)
 
             self.turn_number += 1

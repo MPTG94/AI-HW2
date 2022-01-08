@@ -8,8 +8,7 @@ import numpy as np
 import utils
 from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
-from SearchAlgos import MiniMax
-from utils import GameUtils
+from SearchAlgos import MiniMax, GameUtils
 from copy import deepcopy
 
 
