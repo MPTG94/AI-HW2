@@ -9,7 +9,7 @@ from typing import DefaultDict
 import numpy as np
 from copy import deepcopy
 
-from SearchAlgos import AlphaBeta, GameUtils
+from SearchAlgos import AlphaBeta, GameUtils, GameState
 from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
 import utils
@@ -48,7 +48,7 @@ class Player(AbstractPlayer):
         """
         # TODO: erase the following line and implement this function.
         print(f'======================== Starting turn {self.turn} =========================')
-        state = utils.GameState(deepcopy(self.board), self.prev_board, self.my_pos, self.rival_pos, self.turn,
+        state = GameState(deepcopy(self.board), self.prev_board, self.my_pos, self.rival_pos, self.turn,
                                 time.time() + time_limit - 0.01)
         search_algo = AlphaBeta(self.utils.utility_method, self.utils.successor_func, None, self.utils.check_goal)
         depth = 1
@@ -77,7 +77,7 @@ class Player(AbstractPlayer):
 
         move = best_move[1]
         self.prev_board = deepcopy(self.board)
-        new_state = utils.GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn,
+        new_state = GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn,
                                     time.time() + time_limit)
 
         GameUtils.perform_move(new_state, move, 1)

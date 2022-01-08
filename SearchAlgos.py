@@ -128,6 +128,7 @@ class AlphaBeta(SearchAlgos):
         # print(state.max_time)
         i = 1 if maximizing_player else 2
         successor_moves = self.succ(state, i)
+        # print(successor_moves)
         if maximizing_player:
             # This is a MAX node
             curr_max = -np.inf
@@ -299,7 +300,7 @@ class GameUtils():
         :param player_index: the player to check if he won
         :return: True if the player won, False otherwise
         """
-        if state.turn_number >= 18:
+        if state.turn_number > 18:
             if player_index == 1:
                 if not GameUtils.can_player_i_move(state.board, 2) or GameUtils.count_soldiers_by_player_index(
                         state.board, 2) < 3:

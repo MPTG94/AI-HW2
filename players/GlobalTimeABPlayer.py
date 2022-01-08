@@ -6,10 +6,9 @@ import time
 import numpy as np
 from copy import deepcopy
 
-from SearchAlgos import AlphaBeta
+from SearchAlgos import AlphaBeta, GameState, GameUtils
 from players.AbstractPlayer import AbstractPlayer
 # TODO: you can import more modules, if needed
-from utils import GameUtils
 import utils
 
 
@@ -21,6 +20,7 @@ class Player(AbstractPlayer):
         self.game_time = game_time
         self.initial_game_time = game_time
         self.total_runtime_by_turn = {}
+        self.runtime_limits = []
 
     def set_game_params(self, board):
         """Set the game parameters needed for this player.
@@ -39,7 +39,7 @@ class Player(AbstractPlayer):
         self.next_depth_limit = np.inf
 
         # Extra time management params
-        self.initial_balance_factor = (1 / 60)
+        self.initial_balance_factor = (1 / 20)
         self.curr_iteration_runtime = self.game_time * self.initial_balance_factor
         self.safe_runtime_extension = 0.01
         # early: turn >=25
@@ -61,8 +61,9 @@ class Player(AbstractPlayer):
         print(f'======================== Starting turn {self.turn} =========================')
         move_start_time = time.time()
         curr_time_limit = self.curr_iteration_runtime
-        state = utils.GameState(deepcopy(self.board), self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                                time.time() + curr_time_limit - self.safe_runtime_extension)
+        self.runtime_limits.append(curr_time_limit)
+        state = GameState(deepcopy(self.board), self.prev_board, self.my_pos, self.rival_pos, self.turn,
+                          time.time() + curr_time_limit - self.safe_runtime_extension)
         search_algo = AlphaBeta(self.utils.utility_method, self.utils.successor_func, None, self.utils.check_goal)
         depth = 1
         best_move = (None, None)
@@ -79,7 +80,9 @@ class Player(AbstractPlayer):
                 start_time = time.time()
                 temp_move = search_algo.search(state, depth, True)
                 end_time = time.time()
+                print(f'{depth}: {end_time - start_time}')
                 if temp_move[1] is not None:
+                    print(f'found move')
                     best_move = temp_move
                     try:
                         self.total_runtime_by_turn[self.turn].append(end_time - start_time)
@@ -88,7 +91,7 @@ class Player(AbstractPlayer):
                     print(self.total_runtime_by_turn)
                 else:
                     # TODO: are we sure this is fine?
-                    # print(f'GOT NONE!')
+                    print(f'GOT NONE!')
                     break
             except TimeoutError:
                 break
@@ -103,53 +106,78 @@ class Player(AbstractPlayer):
         our_blocked_count = GameUtils.count_blocked_soldiers_by_player_index(self.board, 1)
         rival_blocked_count = GameUtils.count_blocked_soldiers_by_player_index(self.board, 2)
         self.prev_board = deepcopy(self.board)
-        new_state = utils.GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                                    time.time() + time_limit)
+        new_state = GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn,
+                              time.time() + time_limit)
 
         GameUtils.perform_move(new_state, move, 1)
         self.turn += 1
         # Need to look at the time the current iteration took
         curr_iteration_runtime = time.time() - move_start_time
-        if self.turn > 18:
-            # ALIVE COUNT
-            new_our_dead_count = 9 - len(GameUtils.get_soldier_position_by_player_index(new_state.board, 1))
-            new_rival_dead_count = 9 - len(GameUtils.get_soldier_position_by_player_index(new_state.board, 2))
-
-            # BLOCKED COUNT
-            new_our_blocked_count = GameUtils.count_blocked_soldiers_by_player_index(new_state.board, 1)
-            new_rival_blocked_count = GameUtils.count_blocked_soldiers_by_player_index(new_state.board, 2)
-            if new_rival_blocked_count + new_our_blocked_count >= 6 and \
-                    new_our_blocked_count + new_rival_blocked_count > our_blocked_count + rival_blocked_count:
-                self.curr_iteration_runtime = curr_iteration_runtime + self.game_time * self.phase2_large_blocked_num_factor
-            elif new_rival_blocked_count + new_our_blocked_count < 6 and \
-                    new_our_blocked_count + new_rival_blocked_count < our_blocked_count + rival_blocked_count:
-                self.curr_iteration_runtime = curr_iteration_runtime - self.game_time * self.phase2_large_blocked_num_factor
-            if new_rival_dead_count + new_our_dead_count >= 7 and \
-                    new_our_dead_count + new_rival_dead_count > our_dead_count + rival_dead_count:
-                self.curr_iteration_runtime = curr_iteration_runtime + self.game_time * self.phase2_large_dead_num_factor
-            elif new_rival_dead_count + new_our_dead_count < 7 and \
-                    new_our_dead_count + new_rival_dead_count < our_dead_count + rival_dead_count:
-                self.curr_iteration_runtime = curr_iteration_runtime - self.game_time * self.phase2_large_dead_num_factor
-        else:
-            self.curr_iteration_runtime = curr_iteration_runtime
+        # if self.turn > 18:
+        #     # ALIVE COUNT
+        #     new_our_dead_count = 9 - len(GameUtils.get_soldier_position_by_player_index(new_state.board, 1))
+        #     new_rival_dead_count = 9 - len(GameUtils.get_soldier_position_by_player_index(new_state.board, 2))
+        #
+        #     # BLOCKED COUNT
+        #     new_our_blocked_count = GameUtils.count_blocked_soldiers_by_player_index(new_state.board, 1)
+        #     new_rival_blocked_count = GameUtils.count_blocked_soldiers_by_player_index(new_state.board, 2)
+        #     if new_rival_blocked_count + new_our_blocked_count >= 6 and \
+        #             new_our_blocked_count + new_rival_blocked_count > our_blocked_count + rival_blocked_count:
+        #         self.curr_iteration_runtime = curr_iteration_runtime + self.game_time * self.phase2_large_blocked_num_factor
+        #         print(f'#1# adjusted time to: {self.curr_iteration_runtime}')
+        #     elif new_rival_blocked_count + new_our_blocked_count < 6 and \
+        #             new_our_blocked_count + new_rival_blocked_count < our_blocked_count + rival_blocked_count:
+        #         self.curr_iteration_runtime = curr_iteration_runtime - self.game_time * self.phase2_large_blocked_num_factor
+        #         print(f'#2# adjusted time to: {self.curr_iteration_runtime}')
+        #     if new_rival_dead_count + new_our_dead_count >= 7 and \
+        #             new_our_dead_count + new_rival_dead_count > our_dead_count + rival_dead_count:
+        #         self.curr_iteration_runtime = curr_iteration_runtime + self.game_time * self.phase2_large_dead_num_factor
+        #         print(f'#3# adjusted time to: {self.curr_iteration_runtime}')
+        #     elif new_rival_dead_count + new_our_dead_count < 7 and \
+        #             new_our_dead_count + new_rival_dead_count < our_dead_count + rival_dead_count:
+        #         self.curr_iteration_runtime = curr_iteration_runtime - self.game_time * self.phase2_large_dead_num_factor
+        #         print(f'#4# adjusted time to: {self.curr_iteration_runtime}')
+        # else:
+        #     self.curr_iteration_runtime = curr_iteration_runtime
+        if self.curr_iteration_runtime < self.initial_game_time * self.initial_balance_factor:
+            if len(self.total_runtime_by_turn[0]) > 1:
+                self.curr_iteration_runtime = self.total_runtime_by_turn[0][1] * 50
         move_end_time = time.time()
         # Update remaining game time
         self.game_time -= move_end_time - move_start_time
+        if self.game_time > 100:
+            self.curr_iteration_runtime = 10
+        if 50 < self.game_time < 100:
+            self.curr_iteration_runtime = 5
+        if 35 < self.game_time < 50:
+            self.curr_iteration_runtime = 2.5
+        if 10 < self.game_time < 35:
+            self.curr_iteration_runtime = 1
+        if 5 < self.game_time < 10:
+            self.curr_iteration_runtime = 0.5
+        if self.game_time < 5:
+            self.curr_iteration_runtime = 0.3
+        if self.game_time < 1:
+            self.curr_iteration_runtime = 0.032
+
+
         current_turn_num = self.turn - 1
-        if len(self.total_runtime_by_turn[current_turn_num]) > 3 and self.total_runtime_by_turn[current_turn_num][
-            3] * 30 < self.game_time < self.total_runtime_by_turn[current_turn_num][
-            3] * 70:
-            self.next_depth_limit = 4
-        if len(self.total_runtime_by_turn[current_turn_num]) > 2 and self.total_runtime_by_turn[current_turn_num][
-            2] * 30 < self.game_time < self.total_runtime_by_turn[current_turn_num][
-            2] * 70:
-            self.next_depth_limit = 3
-        if len(self.total_runtime_by_turn[current_turn_num]) > 1 and self.total_runtime_by_turn[current_turn_num][
-            1] * 30 < self.game_time < self.total_runtime_by_turn[current_turn_num][
-            1] * 70:
-            self.next_depth_limit = 2
-        else:
-            self.next_depth_limit = 1
+        # if len(self.total_runtime_by_turn[current_turn_num]) > 3 and self.total_runtime_by_turn[current_turn_num][
+        #     3] * 30 < self.game_time < self.total_runtime_by_turn[current_turn_num][
+        #     3] * 70:
+        #     self.next_depth_limit = 4
+        # if len(self.total_runtime_by_turn[current_turn_num]) > 2 and self.total_runtime_by_turn[current_turn_num][
+        #     2] * 30 < self.game_time < self.total_runtime_by_turn[current_turn_num][
+        #     2] * 70:
+        #     self.next_depth_limit = 3
+        # if len(self.total_runtime_by_turn[current_turn_num]) > 1 and self.total_runtime_by_turn[current_turn_num][
+        #     1] * 30 < self.game_time < self.total_runtime_by_turn[current_turn_num][
+        #     1] * 70:
+        #     self.next_depth_limit = 2
+        # else:
+        #     self.next_depth_limit = 1
+        # print(self.runtime_limits)
+        print(f'Time remaining: {self.initial_game_time - self.game_time}')
         return move
 
     def set_rival_move(self, move):
