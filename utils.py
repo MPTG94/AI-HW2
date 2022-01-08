@@ -2,7 +2,7 @@ import operator
 import numpy as np
 import os
 
-# TODO: edit the alpha and beta initialization values for AlphaBeta algorithm.
+#TODO: edit the alpha and beta initialization values for AlphaBeta algorithm.
 # instead of 'None', write the real initialization value, learned in class.
 # hint: you can use np.inf
 ALPHA_VALUE_INIT = None
@@ -40,7 +40,6 @@ def get_directions(position):
     ]
     return adjacent[position]
 
-
 # def tup_add(t1, t2):
 #     """
 #     returns the sum of two tuples as tuple.
@@ -48,37 +47,31 @@ def get_directions(position):
 #     return tuple(map(operator.add, t1, t2))
 
 def printBoard(board):
-    print(int(board[0]), "(00)-----------------------", int(board[1]), "(01)-----------------------", int(board[2]),
-          "(02)")
+    print(int(board[0]),"(00)-----------------------",int(board[1]),"(01)-----------------------",int(board[2]),"(02)")
     print("|                             |                             |")
     print("|                             |                             |")
     print("|                             |                             |")
-    print("|       ", int(board[8]), "(08)--------------", int(board[9]), "(09)--------------", int(board[10]),
-          "(10)   |")
+    print("|       ",int(board[8]),"(08)--------------",int(board[9]),"(09)--------------",int(board[10]),"(10)   |")
     print("|       |                     |                    |        |")
     print("|       |                     |                    |        |")
     print("|       |                     |                    |        |")
-    print("|       |        ", int(board[16]), "(16)-----", int(board[17]), "(17)-----", int(board[18]),
-          "(18)   |        |")
+    print("|       |        ",int(board[16]),"(16)-----",int(board[17]),"(17)-----",int(board[18]),"(18)   |        |")
     print("|       |         |                       |        |        |")
     print("|       |         |                       |        |        |")
     print("|       |         |                       |        |        |")
-    print(int(board[3]), "(03)-", int(board[11]), "(11)---", int(board[19]), "(19)                 ",
-          int(board[20]), "(20)-", int(board[12]), "(12)---", int(board[4]), "(04)")
+    print(int(board[3]),"(03)-",int(board[11]),"(11)---",int(board[19]),"(19)                 ",
+          int(board[20]),"(20)-",int(board[12]),"(12)---",int(board[4]),"(04)")
     print("|       |         |                       |        |        |")
     print("|       |         |                       |        |        |")
     print("|       |         |                       |        |        |")
-    print("|       |        ", int(board[21]), "(21)-----", int(board[22]), "(22)-----", int(board[23]),
-          "(23)   |        |")
+    print("|       |        ",int(board[21]),"(21)-----",int(board[22]),"(22)-----",int(board[23]),"(23)   |        |")
     print("|       |                     |                    |        |")
     print("|       |                     |                    |        |")
     print("|       |                     |                    |        |")
-    print("|       ", int(board[13]), "(13)--------------", int(board[14]), "(14)--------------", int(board[15]),
-          "(15)   |")
+    print("|       ",int(board[13]),"(13)--------------",int(board[14]),"(14)--------------",int(board[15]),"(15)   |")
     print("|                             |                             |")
     print("|                             |                             |")
     print("|                             |                             |")
-    print(int(board[5]), "(05)-----------------------", int(board[6]), "(06)-----------------------", int(board[7]),
-          "(07)")
+    print(int(board[5]),"(05)-----------------------",int(board[6]),"(06)-----------------------",int(board[7]),"(07)")
     print("\n")
 
