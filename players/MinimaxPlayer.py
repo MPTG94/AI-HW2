@@ -55,6 +55,7 @@ class Player(AbstractPlayer):
                     best_move = temp_move
                 else:
                     print(f'GOT NONE!')
+                    # pass
                 print(f'trying depth {depth}')
             except TimeoutError:
                 break

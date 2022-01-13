@@ -88,6 +88,11 @@ class MiniMax(SearchAlgos):
                 GameUtils.perform_move(state_copy, move, i)
                 search_algo = MiniMax(self.utility, self.succ, None, self.goal)
                 step_value, step_move = search_algo.search(state_copy, depth - 1, False)
+                # if state.turn_number == 1:
+                #     print('##############################################')
+                #     print('MINIMAX MAXIMIZER H value:', step_value)
+                #     print('MINIMAX MAXIMIZER Move:', step_move)
+                #     print('##############################################')
                 if step_value > curr_max:
                     curr_max = step_value
                     curr_move = move
@@ -101,6 +106,11 @@ class MiniMax(SearchAlgos):
                 GameUtils.perform_move(state_copy, move, i)
                 search_algo = MiniMax(self.utility, self.succ, None, self.goal)
                 step_value, step_move = search_algo.search(state_copy, depth - 1, True)
+                # if state.turn_number == 1:
+                #     print('##############################################')
+                #     print('MINIMAX MINIMIZER H value:', step_value)
+                #     print('MINIMAX MINIMIZER Move:', step_move)
+                #     print('##############################################')
                 if step_value < curr_min:
                     curr_min = step_value
                     curr_move = move
@@ -122,6 +132,7 @@ class AlphaBeta(SearchAlgos):
         if self.goal(state) or depth <= 0:
             # print('goal' ,self.goal(state))
             # print('depth', depth)
+            print('GOAL', depth, self.goal(state))
             return self.utility(state, True), None
         # print('PASSED goal check')
         # print(f'searching for depth {depth}')
@@ -138,12 +149,19 @@ class AlphaBeta(SearchAlgos):
                 GameUtils.perform_move(state_copy, move, i)
                 search_algo = AlphaBeta(self.utility, self.succ, None, self.goal)
                 step_value, step_move = search_algo.search(state_copy, depth - 1, False, alpha, beta)
+                # if state.turn_number == 1:
+                #     print('##############################################')
+                #     print('ALPHABETA MAXIMIZER H value:', step_value)
+                #     print('ALPHABETA MAXIMIZER Move:', step_move)
+                #     print('##############################################')
                 if step_value is not None and step_value > curr_max:
                     curr_max = step_value
+                    print('assigning move in max', move)
                     curr_move = move
                 alpha = max(alpha, curr_max)
                 if beta <= alpha:
                     # Early stopping
+                    print('TRIM MAX')
                     return None, None
             return curr_max, curr_move
         else:
@@ -155,11 +173,18 @@ class AlphaBeta(SearchAlgos):
                 GameUtils.perform_move(state_copy, move, i)
                 search_algo = AlphaBeta(self.utility, self.succ, None, self.goal)
                 step_value, step_move = search_algo.search(state_copy, depth - 1, True, alpha, beta)
+                # if state.turn_number == 1:
+                #     print('##############################################')
+                #     print('ALPHABETA MINIMIZER H value:', step_value)
+                #     print('ALPHABETA MINIMIZER Move:', step_move)
+                #     print('##############################################')
                 if step_value is not None and step_value < curr_min:
                     curr_min = step_value
+                    print('assigning move in min', move)
                     curr_move = move
                 beta = min(beta, curr_min)
                 if beta <= alpha:
+                    print('TRIM MIN')
                     return None, None
         return curr_min, curr_move
 
@@ -362,6 +387,10 @@ class GameUtils():
             else:
                 # Can't kill with this move
                 moves.append((free, soldier_that_moved, -1))
+        # if state.turn_number == 1:
+        #     print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        #     print(moves)
+        #     print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
         return moves
 
     @staticmethod
@@ -398,6 +427,7 @@ class GameUtils():
         #     pass
         h_values = []
         if state.turn_number < 18:
+            # print(len(state.stage_1_h_list))
             heuristic_value = 0
             for weight, h_func in zip(state.stage_1_h_weights, state.stage_1_h_list):
                 if h_func == Heuristics.was_mill_created:
@@ -408,6 +438,7 @@ class GameUtils():
                 else:
                     heuristic_value += weight * h_func(state)
         else:
+            # print(len(state.stage_2_h_list))
             heuristic_value = 0
             for weight, h_func in zip(state.stage_2_h_weights, state.stage_2_h_list):
                 if h_func == Heuristics.was_mill_created or h_func == Heuristics.was_mill_broken:
@@ -610,17 +641,22 @@ class GameState:
                       Heuristics.number_of_pairs,
                       Heuristics.number_of_3_piece_configs]
     # Original weights
-    stage_2_h_weights = [50, 43, 10, 8, 7, 42, 1086]
-    # stage_2_h_weights = [14, 43, 10, 8, 50, 42, 1086]
+    # stage_2_h_weights = [50, 43, 10, 8, 7, 42, 1086]
+    stage_2_h_weights = [100, 43, 10, 8, 100, 42, 1086, 50]
     stage_2_h_list = [Heuristics.was_mill_created, Heuristics.number_of_closed_mills,
                       Heuristics.number_of_blocked_soldiers, Heuristics.number_of_soldiers_on_board,
                       Heuristics.was_mill_broken,
-                      Heuristics.number_of_double_morris, Heuristics.is_goal]
+                      Heuristics.number_of_double_morris, Heuristics.is_goal, Heuristics.number_of_pairs, ]
 
-    def __init__(self, board, prev_board, player_1_pos, player_2_pos, turn_number, time_limit):
+    def __init__(self, board, prev_board, player_1_pos, player_2_pos, turn_number, time_limit, light_player=False):
         self.board = board
         self.prev_board = prev_board
         self.player_1_pos = player_1_pos
         self.player_2_pos = player_2_pos
         self.turn_number = turn_number
         self.max_time = time_limit
+        if light_player:
+            self.stage_1_h_weights = [18]
+            self.stage_1_h_list = [Heuristics.was_mill_created]
+            self.stage_2_h_weights = [100]
+            self.stage_2_h_list = [Heuristics.was_mill_created]
