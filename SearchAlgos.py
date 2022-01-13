@@ -130,15 +130,21 @@ class AlphaBeta(SearchAlgos):
         """
         # TODO: erase the following line and implement this function.
         if self.goal(state) or depth <= 0:
+            # if state.turn_number == 18:
+            #     print('GOAL', depth, self.goal(state))
             # print('goal' ,self.goal(state))
             # print('depth', depth)
-            print('GOAL', depth, self.goal(state))
+            # print('GOAL', depth, self.goal(state))
             return self.utility(state, True), None
         # print('PASSED goal check')
         # print(f'searching for depth {depth}')
         # print(state.max_time)
         i = 1 if maximizing_player else 2
         successor_moves = self.succ(state, i)
+        # if state.light_player:
+        #     print(successor_moves)
+        #     if len(successor_moves) == 0:
+        #         print('here')
         # print(successor_moves)
         if maximizing_player:
             # This is a MAX node
@@ -156,12 +162,12 @@ class AlphaBeta(SearchAlgos):
                 #     print('##############################################')
                 if step_value is not None and step_value > curr_max:
                     curr_max = step_value
-                    print('assigning move in max', move)
+                    # print('assigning move in max', move)
                     curr_move = move
                 alpha = max(alpha, curr_max)
                 if beta <= alpha:
                     # Early stopping
-                    print('TRIM MAX')
+                    #     print('TRIM MAX')
                     return None, None
             return curr_max, curr_move
         else:
@@ -180,11 +186,12 @@ class AlphaBeta(SearchAlgos):
                 #     print('##############################################')
                 if step_value is not None and step_value < curr_min:
                     curr_min = step_value
-                    print('assigning move in min', move)
+                    # print('assigning move in min', move)
                     curr_move = move
                 beta = min(beta, curr_min)
                 if beta <= alpha:
-                    print('TRIM MIN')
+                    # Early stopping
+                    # print('TRIM MIN')
                     return None, None
         return curr_min, curr_move
 
@@ -352,7 +359,7 @@ class GameUtils():
         # print(f'{state.max_time} ------- {time.time()}')
         if state.max_time is not None and state.max_time <= time.time():
             raise TimeoutError
-        return GameUtils.return_winner(state) == 1
+        return GameUtils.return_winner(state) != 0
 
     @staticmethod
     def successor_func(state, i):
@@ -655,6 +662,7 @@ class GameState:
         self.player_2_pos = player_2_pos
         self.turn_number = turn_number
         self.max_time = time_limit
+        self.light_player = light_player
         if light_player:
             self.stage_1_h_weights = [18]
             self.stage_1_h_list = [Heuristics.was_mill_created]

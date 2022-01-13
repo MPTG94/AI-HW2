@@ -46,7 +46,7 @@ class Player(AbstractPlayer):
         state = GameState(deepcopy(self.board), self.prev_board, self.my_pos, self.rival_pos, self.turn,
                           time.time() + time_limit - 0.01, True)
         search_algo = AlphaBeta(self.utils.utility_method, self.utils.successor_func, None, self.utils.check_goal)
-        depth = 3
+        depth = 4
         best_move = (None, None)
 
 
