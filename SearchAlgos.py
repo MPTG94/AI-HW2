@@ -460,6 +460,7 @@ class GameUtils():
                     h_values.append(val)
                     heuristic_value += val
             # GameUtils.print_heuristic_results(h_values)
+        # print(f'PLAYER: {state.my_index}, H_VALUE: {heuristic_value}')
         return heuristic_value
 
     @staticmethod
@@ -575,11 +576,19 @@ class Heuristics:
             curr_sum = state.board[mil_indexes].sum()
             prev_sum = state.prev_board[mil_indexes].sum()
             if curr_sum == 3 and prev_sum == 2:
-                # we created a mill in this turn
-                return 1
+                if state.my_index == 1:
+                    # we created a mill in this turn
+                    return 1
+                else:
+                    # rival created a mill in this turn
+                    return -1
             if curr_sum == 6 and prev_sum == 4:
-                # rival created a mill in this turn
-                return -1
+                if state.my_index == 1:
+                    # rival created a mill in this turn
+                    return -1
+                else:
+                    # we created a mill in this turn
+                    return 1
         return 0
 
     @staticmethod
@@ -588,49 +597,86 @@ class Heuristics:
             curr_sum = state.board[mil_indexes].sum()
             prev_sum = state.prev_board[mil_indexes].sum()
             if curr_sum == 2 and prev_sum == 3:
-                # we broke a mill in this turn
-                return 1
+                if state.my_index == 1:
+                    # we broke a mill in this turn
+                    return 1
+                else:
+                    # rival broke a mill in this turn
+                    return -1
             if curr_sum == 4 and prev_sum == 6:
-                # rival broke a mill in this turn
-                return -1
+                if state.my_index == 1:
+                    # rival broke a mill in this turn
+                    return -1
+                else:
+                    # we broke a mill in this turn
+                    return 1
         return 0
 
     @staticmethod
     def number_of_closed_mills(state):
-        return BoardUtils.count_mills_by_index(state.board, 1) - BoardUtils.count_mills_by_index(state.board, 2)
+        res = BoardUtils.count_mills_by_index(state.board, 1) - BoardUtils.count_mills_by_index(state.board, 2)
+        if state.my_index == 1:
+            return res
+        else:
+            return -1 * res
 
     @staticmethod
     def number_of_blocked_soldiers(state):
-        return GameUtils.count_blocked_soldiers_by_player_index(state.board, 2) - \
-               GameUtils.count_blocked_soldiers_by_player_index(state.board, 1)
+        res = GameUtils.count_blocked_soldiers_by_player_index(state.board, 2) - \
+              GameUtils.count_blocked_soldiers_by_player_index(state.board, 1)
+        if state.my_index == 1:
+            return res
+        else:
+            return -1 * res
 
     @staticmethod
     def number_of_soldiers_on_board(state):
-        return len(GameUtils.get_soldier_position_by_player_index(state.board, 1)) - len(
+        res = len(GameUtils.get_soldier_position_by_player_index(state.board, 1)) - len(
             GameUtils.get_soldier_position_by_player_index(state.board, 2))
+        if state.my_index == 1:
+            return res
+        else:
+            return -1 * res
 
     @staticmethod
     def number_of_pairs(state):
-        return BoardUtils.count_pairs_by_index(state.board, 1) - BoardUtils.count_pairs_by_index(state.board, 2)
+        res = BoardUtils.count_pairs_by_index(state.board, 1) - BoardUtils.count_pairs_by_index(state.board, 2)
+        if state.my_index == 1:
+            return res
+        else:
+            return -1 * res
 
     @staticmethod
     def number_of_3_piece_configs(state):
-        return BoardUtils.count_3_piece_configs_by_index(state.board, 1) - BoardUtils.count_3_piece_configs_by_index(
+        res = BoardUtils.count_3_piece_configs_by_index(state.board, 1) - BoardUtils.count_3_piece_configs_by_index(
             state.board, 2)
+        if state.my_index == 1:
+            return res
+        else:
+            return -1 * res
 
     @staticmethod
     def number_of_double_morris(state):
-        return BoardUtils.count_double_morris_configs_by_index(state.board, 1) - \
-               BoardUtils.count_double_morris_configs_by_index(state.board, 2)
+        res = BoardUtils.count_double_morris_configs_by_index(state.board, 1) - \
+              BoardUtils.count_double_morris_configs_by_index(state.board, 2)
+        if state.my_index == 1:
+            return res
+        else:
+            return -1 * res
+
+    @staticmethod
+    def simple_heuristic(state):
+        return len(GameUtils.get_soldier_position_by_player_index(state.board, state.my_index))
 
     @staticmethod
     def is_goal(state):
         winner_index = GameUtils.return_winner(state)
-        if winner_index == 1:
+        if winner_index == 0:
+            return 0
+        if winner_index == state.my_index:
             return 1
-        elif winner_index == 2:
+        else:
             return -1
-        return 0
 
 
 class GameState:
@@ -641,21 +687,22 @@ class GameState:
     player_1_pos = np.full(9, -1)
     player_2_pos = np.full(9, -1)
     # Original weights
-    stage_1_h_weights = [18, 26, 1, 6, 12, 7]
-    # stage_1_h_weights = [50, 26, 1, 6, 12, 7]
+    # stage_1_h_weights = [18, 26, 1, 6, 18, 7]
+    stage_1_h_weights = [50, 26, 30, 30, 30, 7]
     stage_1_h_list = [Heuristics.was_mill_created, Heuristics.number_of_closed_mills,
                       Heuristics.number_of_blocked_soldiers, Heuristics.number_of_soldiers_on_board,
                       Heuristics.number_of_pairs,
                       Heuristics.number_of_3_piece_configs]
     # Original weights
     # stage_2_h_weights = [50, 43, 10, 8, 7, 42, 1086]
-    stage_2_h_weights = [100, 43, 10, 8, 100, 42, 1086, 50]
+    stage_2_h_weights = [50, 43, 30, 30, 8, 8, 100, 30]
     stage_2_h_list = [Heuristics.was_mill_created, Heuristics.number_of_closed_mills,
                       Heuristics.number_of_blocked_soldiers, Heuristics.number_of_soldiers_on_board,
                       Heuristics.was_mill_broken,
-                      Heuristics.number_of_double_morris, Heuristics.is_goal, Heuristics.number_of_pairs, ]
+                      Heuristics.number_of_double_morris, Heuristics.is_goal, Heuristics.number_of_pairs]
 
-    def __init__(self, board, prev_board, player_1_pos, player_2_pos, turn_number, time_limit, light_player=False):
+    def __init__(self, board, prev_board, player_1_pos, player_2_pos, turn_number, time_limit, my_index,
+                 light_player=False):
         self.board = board
         self.prev_board = prev_board
         self.player_1_pos = player_1_pos
@@ -663,8 +710,9 @@ class GameState:
         self.turn_number = turn_number
         self.max_time = time_limit
         self.light_player = light_player
+        self.my_index = my_index
         if light_player:
-            self.stage_1_h_weights = [18]
-            self.stage_1_h_list = [Heuristics.was_mill_created]
-            self.stage_2_h_weights = [100]
-            self.stage_2_h_list = [Heuristics.was_mill_created]
+            self.stage_1_h_weights = [35]
+            self.stage_1_h_list = [Heuristics.number_of_pairs]
+            self.stage_2_h_weights = [35]
+            self.stage_2_h_list = [Heuristics.number_of_pairs]

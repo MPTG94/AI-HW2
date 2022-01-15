@@ -17,6 +17,9 @@ class Player(AbstractPlayer):
         AbstractPlayer.__init__(self, game_time)  # keep the inheritance of the parent's (AbstractPlayer) __init__()
         # TODO: initialize more fields, if needed, and the AlphaBeta algorithm from SearchAlgos.py
         self.utils = GameUtils
+        self.game_started = False
+        # don't know our index yet (if we start or go 2nd)
+        self.our_player_index = 0
         self.game_time = game_time
         self.initial_game_time = game_time
         self.total_runtime_by_turn = {}
@@ -59,11 +62,14 @@ class Player(AbstractPlayer):
         """
         # TODO: erase the following line and implement this function.
         print(f'======================== Starting turn {self.turn} =========================')
+        if self.game_started == False:
+            self.game_started = True
+            self.our_player_index = 1
         move_start_time = time.time()
         curr_time_limit = self.curr_iteration_runtime
         self.runtime_limits.append(curr_time_limit)
         state = GameState(deepcopy(self.board), self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                          time.time() + curr_time_limit - self.safe_runtime_extension)
+                          time.time() + curr_time_limit - self.safe_runtime_extension, self.our_player_index)
         search_algo = AlphaBeta(self.utils.utility_method, self.utils.successor_func, None, self.utils.check_goal)
         depth = 1
         best_move = (None, None)
@@ -107,7 +113,7 @@ class Player(AbstractPlayer):
         rival_blocked_count = GameUtils.count_blocked_soldiers_by_player_index(self.board, 2)
         self.prev_board = deepcopy(self.board)
         new_state = GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                              time.time() + time_limit)
+                              time.time() + time_limit, self.our_player_index)
 
         GameUtils.perform_move(new_state, move, 1)
         self.turn += 1
@@ -160,7 +166,6 @@ class Player(AbstractPlayer):
         if self.game_time < 1:
             self.curr_iteration_runtime = 0.032
 
-
         current_turn_num = self.turn - 1
         # if len(self.total_runtime_by_turn[current_turn_num]) > 3 and self.total_runtime_by_turn[current_turn_num][
         #     3] * 30 < self.game_time < self.total_runtime_by_turn[current_turn_num][
@@ -187,6 +192,9 @@ class Player(AbstractPlayer):
         No output is expected
         """
         # TODO: erase the following line and implement this function.
+        if self.game_started == False:
+            self.our_player_index = 2
+            self.game_started = True
         rival_pos, rival_soldier, my_dead_pos = move
 
         if self.turn < 18:
