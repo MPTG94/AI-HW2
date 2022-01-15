@@ -18,9 +18,6 @@ class Player(AbstractPlayer):
         AbstractPlayer.__init__(self, game_time)  # keep the inheritance of the parent's (AbstractPlayer) __init__()
         # TODO: initialize more fields, if needed, and the AlphaBeta algorithm from SearchAlgos.py
         self.utils = GameUtils
-        self.game_started = False
-        # don't know our index yet (if we start or go 2nd)
-        self.our_player_index = 0
 
     def set_game_params(self, board):
         """Set the game parameters needed for this player.
@@ -46,11 +43,8 @@ class Player(AbstractPlayer):
         """
         # TODO: erase the following line and implement this function.
         print(f'======================== Starting turn {self.turn} =========================')
-        if self.game_started == False:
-            self.game_started = True
-            self.our_player_index = 1
         state = GameState(deepcopy(self.board), self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                          time.time() + time_limit - 0.01, self.our_player_index, True)
+                          time.time() + time_limit - 0.01, True)
         search_algo = AlphaBeta(self.utils.utility_method, self.utils.successor_func, None, self.utils.check_goal)
         depth = 3
         best_move = (None, None)
@@ -65,7 +59,7 @@ class Player(AbstractPlayer):
         move = best_move[1]
         self.prev_board = deepcopy(self.board)
         new_state = GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                              time.time() + time_limit, self.our_player_index, True)
+                              time.time() + time_limit, True)
 
         GameUtils.perform_move(new_state, move, 1)
         self.turn += 1
@@ -78,9 +72,6 @@ class Player(AbstractPlayer):
         No output is expected
         """
         # TODO: erase the following line and implement this function.
-        if self.game_started == False:
-            self.our_player_index = 2
-            self.game_started = True
         rival_pos, rival_soldier, my_dead_pos = move
 
         if self.turn < 18:
