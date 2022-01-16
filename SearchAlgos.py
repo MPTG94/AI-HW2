@@ -665,15 +665,20 @@ class GameState:
                       Heuristics.was_mill_broken,
                       Heuristics.number_of_double_morris, Heuristics.is_goal, Heuristics.number_of_pairs]
 
-    def __init__(self, board, prev_board, player_1_pos, player_2_pos, turn_number, time_limit, light_player):
+    def __init__(self, board, prev_board, player_1_pos, player_2_pos, turn_number, time_limit, player_type: int):
         self.board = board
         self.prev_board = prev_board
         self.player_1_pos = player_1_pos
         self.player_2_pos = player_2_pos
         self.turn_number = turn_number
         self.max_time = time_limit
-        self.light_player = light_player
-        if light_player:
+        self.player_type = player_type
+        if player_type == 1:
+            # print('Player is minimax or alphabeta')
+            self.stage_1_h_weights = [50, 26, 5, 20, 30, 7]
+            self.stage_2_h_weights = [70, 26, 15, 20, 15, 3, 1000, 30]
+        if player_type == 2:
+            # print('player is light')
             self.stage_1_h_weights = [35]
             self.stage_1_h_list = [Heuristics.number_of_pairs]
             self.stage_2_h_weights = [35]

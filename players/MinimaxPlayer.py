@@ -41,26 +41,26 @@ class Player(AbstractPlayer):
             - direction: tuple, specifing the Player's movement
         """
         # TODO: erase the following line and implement this function.
-        print(f'======================== Starting turn {self.turn} =========================')
+        # print(f'======================== Starting turn {self.turn} =========================')
         state = GameState(deepcopy(self.board), self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                          time.time() + time_limit - 0.01, False)
+                          time.time() + time_limit - 0.01, 1)
         search_algo = MiniMax(self.utils.utility_method, self.utils.successor_func, None, self.utils.check_goal)
         depth = 1
         best_move = (None, None)
 
         while True:
             try:
-                print(f'trying depth {depth}')
+                # print(f'trying depth {depth}')
                 start = time.time()
                 temp_move = search_algo.search(state, depth, True)
                 if temp_move[1] is not None:
                     best_move = temp_move
                 else:
-                    print(f'GOT NONE!')
-                    # pass
+                    # print(f'GOT NONE!')
+                    break
                 end = time.time()
-                print(
-                    f'During depth {depth}, needed {end - start} to calculate during turn {self.turn}')
+                # print(
+                #     f'During depth {depth}, needed {end - start} to calculate during turn {self.turn}')
             except TimeoutError:
                 break
             depth += 1
@@ -68,7 +68,7 @@ class Player(AbstractPlayer):
         move = best_move[1]
         self.prev_board = deepcopy(self.board)
         new_state = GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                              time.time() + time_limit, False)
+                              time.time() + time_limit, 1)
 
         GameUtils.perform_move(new_state, move, 1)
         self.turn += 1

@@ -42,24 +42,25 @@ class Player(AbstractPlayer):
             - direction: tuple, specifing the Player's movement
         """
         # TODO: erase the following line and implement this function.
-        print(f'======================== Starting turn {self.turn} =========================')
+        # print(f'======================== Starting turn {self.turn} =========================')
         state = GameState(deepcopy(self.board), self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                          time.time() + time_limit - 0.01, True)
+                          time.time() + time_limit - 0.01, 2)
         search_algo = AlphaBeta(self.utils.utility_method, self.utils.successor_func, None, self.utils.check_goal)
-        depth = 3
+        depth = 4
         best_move = (None, None)
 
-        print(f'trying depth {depth}')
+        # print(f'trying depth {depth}')
         temp_move = search_algo.search(state, depth, True)
         if temp_move[1] is not None:
             best_move = temp_move
         else:
-            print(f'GOT NONE!')
+            # print(f'GOT NONE!')
+            pass
 
         move = best_move[1]
         self.prev_board = deepcopy(self.board)
         new_state = GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                              time.time() + time_limit, True)
+                              time.time() + time_limit, 2)
 
         GameUtils.perform_move(new_state, move, 1)
         self.turn += 1

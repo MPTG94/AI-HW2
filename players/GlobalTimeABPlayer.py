@@ -54,17 +54,17 @@ class Player(AbstractPlayer):
             - direction: tuple, specifing the Player's movement
         """
         # TODO: erase the following line and implement this function.
-        print(f'======================== Starting turn {self.turn} =========================')
+        # print(f'======================== Starting turn {self.turn} =========================')
         move_start_time = time.time()
         curr_time_limit = self.curr_iteration_runtime
         self.runtime_limits.append(curr_time_limit)
         state = GameState(deepcopy(self.board), self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                          time.time() + curr_time_limit - self.safe_runtime_extension, False)
+                          time.time() + curr_time_limit - self.safe_runtime_extension, 0)
         search_algo = AlphaBeta(self.utils.utility_method, self.utils.successor_func, None, self.utils.check_goal)
         depth = 1
         best_move = (None, None)
 
-        print('curr time limit:', curr_time_limit)
+        # print('curr time limit:', curr_time_limit)
         while True:
             try:
                 if self.turn < 18 and depth == 5:
@@ -74,10 +74,10 @@ class Player(AbstractPlayer):
                 elif depth > self.next_depth_limit:
                     break
                 # print(f'Starting depth {depth}, with time limit: {curr_time_limit}')
-                start_time = time.time()
+                # start_time = time.time()
                 temp_move = search_algo.search(state, depth, True)
-                end_time = time.time()
-                print(f'{depth}: {end_time - start_time}')
+                # end_time = time.time()
+                # print(f'{depth}: {end_time - start_time}')
                 if temp_move[1] is not None:
                     # print(f'found move')
                     best_move = temp_move
@@ -91,7 +91,7 @@ class Player(AbstractPlayer):
         move = best_move[1]
         self.prev_board = deepcopy(self.board)
         new_state = GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                              time.time() + time_limit, False)
+                              time.time() + time_limit, 0)
 
         GameUtils.perform_move(new_state, move, 1)
         self.turn += 1
@@ -106,7 +106,7 @@ class Player(AbstractPlayer):
             self.curr_iteration_runtime /= 2.5
             self.curr_iteration_runtime *= 1.2
         if self.turn > 30:
-            print('Now runtime will be:', self.late_runtime)
+            # print('Now runtime will be:', self.late_runtime)
             self.curr_iteration_runtime = self.late_runtime
         if self.turn > 70:
             self.curr_iteration_runtime = 0.2
@@ -114,7 +114,7 @@ class Player(AbstractPlayer):
         #     self.curr_iteration_runtime = max(0.04, self.curr_iteration_runtime)
         # if self.game_time < 0.5:
         #     self.curr_iteration_runtime = 0.08
-        print(f'Time remaining: {self.game_time}')
+        # print(f'Time remaining: {self.game_time}')
         return move
 
     def set_rival_move(self, move):
