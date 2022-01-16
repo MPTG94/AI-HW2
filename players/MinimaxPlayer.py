@@ -43,7 +43,7 @@ class Player(AbstractPlayer):
         # TODO: erase the following line and implement this function.
         print(f'======================== Starting turn {self.turn} =========================')
         state = GameState(deepcopy(self.board), self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                          time.time() + time_limit - 0.01)
+                          time.time() + time_limit - 0.01, False)
         search_algo = MiniMax(self.utils.utility_method, self.utils.successor_func, None, self.utils.check_goal)
         depth = 1
         best_move = (None, None)
@@ -68,7 +68,7 @@ class Player(AbstractPlayer):
         move = best_move[1]
         self.prev_board = deepcopy(self.board)
         new_state = GameState(self.board, self.prev_board, self.my_pos, self.rival_pos, self.turn,
-                              time.time() + time_limit)
+                              time.time() + time_limit, False)
 
         GameUtils.perform_move(new_state, move, 1)
         self.turn += 1

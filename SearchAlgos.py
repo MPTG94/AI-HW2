@@ -169,6 +169,7 @@ class AlphaBeta(SearchAlgos):
                     # Early stopping
                     #     print('TRIM MAX')
                     return None, None
+            # print(Heuristics.)
             return curr_max, curr_move
         else:
             # This is a MIN node
@@ -648,6 +649,8 @@ class GameState:
     # Original weights
     # stage_1_h_weights = [18, 26, 1, 6, 18, 7]
     stage_1_h_weights = [50, 26, 30, 30, 30, 7]
+    # kill tuned weights
+    # stage_1_h_weights = [50, 26, 5, 20, 30, 7]
     stage_1_h_list = [Heuristics.was_mill_created, Heuristics.number_of_closed_mills,
                       Heuristics.number_of_blocked_soldiers, Heuristics.number_of_soldiers_on_board,
                       Heuristics.number_of_pairs,
@@ -655,12 +658,14 @@ class GameState:
     # Original weights
     # stage_2_h_weights = [50, 43, 10, 8, 7, 42, 1086]
     stage_2_h_weights = [50, 43, 30, 30, 8, 8, 100, 30]
+    # kill tuned weights
+    # stage_2_h_weights = [70, 26, 15, 20, 15, 3, 1000, 30]
     stage_2_h_list = [Heuristics.was_mill_created, Heuristics.number_of_closed_mills,
                       Heuristics.number_of_blocked_soldiers, Heuristics.number_of_soldiers_on_board,
                       Heuristics.was_mill_broken,
                       Heuristics.number_of_double_morris, Heuristics.is_goal, Heuristics.number_of_pairs]
 
-    def __init__(self, board, prev_board, player_1_pos, player_2_pos, turn_number, time_limit, light_player=False):
+    def __init__(self, board, prev_board, player_1_pos, player_2_pos, turn_number, time_limit, light_player):
         self.board = board
         self.prev_board = prev_board
         self.player_1_pos = player_1_pos
@@ -673,3 +678,5 @@ class GameState:
             self.stage_1_h_list = [Heuristics.number_of_pairs]
             self.stage_2_h_weights = [35]
             self.stage_2_h_list = [Heuristics.number_of_pairs]
+        # print(len(self.stage_1_h_list))
+        # print(len(self.stage_2_h_list))
